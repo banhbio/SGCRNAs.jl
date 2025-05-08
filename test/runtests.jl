@@ -1,4 +1,5 @@
 using CSV, DataFrames
+using LinearAlgebra, Distributions
 using Random
 using SGCRNAs
 using Test
@@ -6,15 +7,20 @@ using Test
 num_genes=500; num_samples=20; num_modules=4;
 Random.seed!(42)
 genes_per_module = div(num_genes, num_modules)
-common_trend = randn(num_samples)
-base_profiles = [common_trend .* rand() .+ 0.1 * randn(num_samples) for _ in 1:num_modules]
-expression_data = Matrix{Float64}(undef, num_genes, num_samples)
-for i in 1:num_genes
-    clust = div(i - 1, genes_per_module) + 1
-    noise = 0.01 * randn(num_samples)
-    expression_data[i, :] = base_profiles[clust] .+ noise
-end
+# common_trend = randn(num_samples)
+# base_profiles = [common_trend .* rand() .+ 0.1 * randn(num_samples) for _ in 1:num_modules]
+# expression_data = Matrix{Float64}(undef, num_genes, num_samples)
+# for i in 1:num_genes
+#     clust = div(i - 1, genes_per_module) + 1
+#     noise = 0.01 * randn(num_samples)
+#     expression_data[i, :] = base_profiles[clust] .+ noise
+# end
 gene_names = ["Gene_$(i)" for i in 1:num_genes]
+ρ = 0.8
+Σ = [ρ^abs(i-j) for i in 1:num_samples, j in 1:num_samples]
+dist = MvNormal(zeros(num_samples), Symmetric(Σ))
+expression_data = [rand(dist) for _ in 1:num_genes]
+expression_data = reduce(vcat, expression_data)
 
 @testset "Function tests" begin
     CorData, GradData = (0, 0);
