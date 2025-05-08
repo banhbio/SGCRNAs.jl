@@ -48,9 +48,8 @@ jobs:
               using Pkg; Pkg.add("Coverage");
               using Coverage;
               Pkg.test("SGCRNAs"; coverage=true);
-              git_info = Coverage.Coveralls.get_git_info(; service_name="github", service_job_id=get(ENV, "GITHUB_RUN_ID", ""))
               coverage = Coverage.process_folder();
-              Coverage.Coveralls.submit(coverage; git_info=git_info)'
+              Coverage.Coveralls.submit(coverage; service_name="github")'
         env:
           COVERALLS_TOKEN: ${{ secrets.COVERALLS_TOKEN }}
       - uses: coverallsapp/github-action@v2
