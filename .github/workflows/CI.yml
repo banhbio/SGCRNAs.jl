@@ -48,8 +48,7 @@ jobs:
               using Pkg; Pkg.add("Coverage");
               using Coverage;
               Pkg.test("SGCRNAs"; coverage=true);
-              Coverage LCOV;
-              LCOV.writefile("lcov.info", process_folder())'
+              Coverage.LCOV.writefile("lcov.info", process_folder())'
       - name: Upload to Coveralls
         uses: coverallsapp/github-action@v2
         with:
