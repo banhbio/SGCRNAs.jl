@@ -20,7 +20,7 @@ gene_names = ["Gene_$(i)" for i in 1:num_genes]
 Σ = [ρ^abs(i-j) for i in 1:num_samples, j in 1:num_samples]
 dist = MvNormal(zeros(num_samples), Symmetric(Σ))
 expression_data = [rand(dist) for _ in 1:num_genes]
-# expression_data = Matrix(reduce(vcat, expression_data))
+# expression_data = Matrix(reduce(hcat, [rand(dist) for _ in 1:num_genes])')
 
 @testset "Function tests" begin
     CorData, GradData = (0, 0);
