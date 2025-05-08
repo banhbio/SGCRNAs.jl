@@ -48,13 +48,13 @@ jobs:
               using Pkg; Pkg.add("Coverage");
               using Coverage;
               Pkg.test("SGCRNAs"; coverage=true);
-              coverage = Coverage.process_folder();
-              Coverage.Coveralls.submit(coverage; service_name="github")'
-        env:
-          COVERALLS_TOKEN: ${{ secrets.COVERALLS_TOKEN }}
-      - uses: coverallsapp/github-action@v2
+              Coverage LCOV;
+              LCOV.writefile("lcov.info", process_folder())'
+      - name: Upload to Coveralls
+        uses: coverallsapp/github-action@v2
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
+          path-to-lcov: ./lcov.info
   docs:
     name: Documentation
     runs-on: ubuntu-latest
