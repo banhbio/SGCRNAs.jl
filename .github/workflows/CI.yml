@@ -49,7 +49,10 @@ jobs:
               Pkg.add("Coverage");
               using Coverage;
               Pkg.test("SGCRNAs"; coverage=true);
-              Coveralls.submit(Coveralls.process_folder())'
+              coverage = Coverage.process_folder();
+              Coveralls.Coveralls.submit(coverage)'
+        env:
+          COVERALLS_TOKEN: ${{ secrets.COVERALLS_TOKEN }}
       - uses: coverallsapp/github-action@v2
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
