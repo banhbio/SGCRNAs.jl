@@ -6,11 +6,12 @@ using Test
 num_genes=500; num_samples=20; num_modules=4;
 Random.seed!(42)
 genes_per_module = div(num_genes, num_modules)
-base_profiles = [randn(num_samples) for _ in 1:num_modules]
+common_trend = randn(num_samples)
+base_profiles = [common_trend .* rand() .+ 0.1 * randn(num_samples) for _ in 1:num_modules]
 expression_data = Matrix{Float64}(undef, num_genes, num_samples)
 for i in 1:num_genes
     clust = div(i - 1, genes_per_module) + 1
-    noise = 0.2 * randn(num_samples)
+    noise = 0.01 * randn(num_samples)
     expression_data[i, :] = base_profiles[clust] .+ noise
 end
 gene_names = ["Gene_$(i)" for i in 1:num_genes]
