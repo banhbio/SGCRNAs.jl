@@ -38,6 +38,8 @@ jobs:
       - uses: julia-actions/julia-buildpkg@v1
       - uses: julia-actions/julia-runtest@v1
       - uses: coverallsapp/github-action@v2
+        env:
+          COVERALLS_REPO_TOKEN: 978Aql0uDHntT6E9wkRgty00T74eqwBwt
   docs:
     name: Documentation
     runs-on: ubuntu-latest
