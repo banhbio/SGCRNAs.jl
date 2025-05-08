@@ -33,6 +33,6 @@ gene_names = ["Gene_$(i)" for i in 1:num_genes]
         DrawNetwork("./AllNetWork-0.5.png", nw, new_pos, cnctdf, new_clust, k, node_scores=score, edge_mode=:ALL, edge_threshold=0.5)
     end
     @test_nowarn begin
-        CorPhenMod(DataFrame(expression_data, :auto), Matrix(expression_data')[:,[3,1,4]], new_clust, "./CorPhenMod.png")
+        CorPhenMod(DataFrame(expression_data, :auto), DataFrame(Matrix(expression_data')[:,[3,1,4]], :auto), new_clust, "./CorPhenMod.png")
     end
 end
