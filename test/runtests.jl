@@ -3,7 +3,7 @@ using Random
 using SGCRNAs
 using Test
 
-num_genes=100; num_samples=20; num_modules=4;
+num_genes=500; num_samples=20; num_modules=4;
 Random.seed!(42)
 genes_per_module = div(num_genes, num_modules)
 base_profiles = [randn(num_samples) for _ in 1:num_modules]
