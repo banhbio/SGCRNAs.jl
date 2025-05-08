@@ -16,13 +16,16 @@ end
 gene_names = ["Gene_$(i)" for i in 1:num_genes]
 
 @testset "Function tests" begin
+    CorData, GradData = (0, 0);
     @test_nowarn begin
         CorData, GradData = CGM(gene_names, expression_data);
     end
+    clust, pos, edge_data = (0, 0, 0);
     @test_nowarn begin
         clust, pos, edge_data = SpectralClustering(CorData, GradData);
     end
     d = 1; k = maximum(clust[d]);
+    nw, new_pos, cnctdf, new_clust, score = (0, 0, 0, 0, 0);
     @test_nowarn begin
         nw, new_pos, cnctdf, new_clust, score = SetNetwork(edge_data, clust[d], pos, il=collect(1:k));
     end
