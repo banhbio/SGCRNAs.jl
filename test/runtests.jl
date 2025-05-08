@@ -1,5 +1,3 @@
-# test/runtest.jl
-
 using CSV, DataFrames
 using Random
 using SGCRNAs
