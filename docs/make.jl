@@ -20,4 +20,9 @@ makedocs(;
 deploydocs(;
     repo="github.com/C37H41N2O6/SGCRNAs.jl",
     devbranch="main",
+    versions = [
+        "stable" => "v1.0.0",
+        "v1.0" => "v1.0.0",
+        "dev" => "main",
+    ]
 )
