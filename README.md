@@ -1,7 +1,7 @@
 # SGCRNAs [![Build Status](https://github.com/C37H41N2O6/SGCRNAs/actions/workflows/CI.yml/badge.svg?branch=main)](https://github.com/C37H41N2O6/SGCRNAs/actions/workflows/CI.yml?query=branch%3Amain) [![Coverage Status](https://coveralls.io/repos/github/C37H41N2O6/SGCRNAs/badge.svg?branch=main)](https://coveralls.io/github/C37H41N2O6/SGCRNAs?branch=main) [![Stable](https://img.shields.io/badge/docs-stable-blue.svg)](https://C37H41N2O6.github.io/SGCRNAs/stable/) [![Dev](https://img.shields.io/badge/docs-dev-blue.svg)](https://C37H41N2O6.github.io/SGCRNAs/dev/)
 
 ## About SGCRNAs
-[Excerpt from the paper's abstract]
+[Excerpt from the paper's abstract]  
 Weighted Gene Co-expression Network Analysis (WGCNA) is among the most widely employed methods in bioinformatics. WGCNA enables the identification of gene clusters (modules) exhibiting correlated expression patterns, the association of these modules with traits, and the exploration of candidate biomarker genes by focusing on hub genes within the modules. WGCNA has been successfully applied in diverse biological contexts. However, conventional algorithms manifest three principal limitations: the assumption of scale-free topology, the requirement for parameter tuning, and the neglect of regression line slopes. These limitations are addressed by SGCRNA (Spectral-clustering Generalised Correlation Regression Network Analysis).
 
 ## Installation
@@ -44,7 +44,7 @@ SGCRNAs.CorPhenMod(Data[:,5:end], Phen[:,[2,3,5]], new_clust, "Result/Fig/CorPhe
 This project is licensed under the MIT License. See LICENSE for details.
 
 ## Related Publication
-If you use this package in your research, please cite the following paper:
+If you use this package in your research, please cite the following paper:  
 T. Osone, et al., SGCRNA: Spectral Clustering-Guided Co-Expression Network Analysis Without Scale-Free Constraints for Multi-Omic Data, bioRxiv, 2025.
 https://www.biorxiv.org/cgi/content/short/2025.04.27.650628v1
 
