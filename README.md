@@ -45,17 +45,6 @@ This project is licensed under the MIT License. See LICENSE for details.
 
 ## Related Publication
 If you use this package in your research, please cite the following paper:
-Author(s), Title of the Paper, Journal/Conference, Year.
-[DOI or URL to the publication]
-```
-@article{YourCitationKey,
-  author    = {Author, First and Author, Second},
-  title     = {Title of the Paper},
-  journal   = {Journal Name},
-  year      = {202X},
-  volume    = {X},
-  number    = {Y},
-  pages     = {Z-ZZ},
-  doi       = {10.xxxx/xxxxx}
-}
-```
+T. Osone, et al., SGCRNA: Spectral Clustering-Guided Co-Expression Network Analysis Without Scale-Free Constraints for Multi-Omic Data, bioRxiv, 2025.
+https://www.biorxiv.org/cgi/content/short/2025.04.27.650628v1
+
