@@ -34,7 +34,7 @@ DrawNetwork("Result/Fig/AllNetWork-0.5.png", nw, new_pos, cnctdf, new_clust, k, 
 Phen = CSV.read("SraRunTable.csv", header=1, comment="#", delim=',', DataFrame);
 sort!(Phen);
 Data = innerjoin(Data, DataFrame(Symbol=names(edge_data)), on=:Symbol, order=:right);
-SGCRNAs.CorPhenMod(Data[:,5:end], Phen[:,[2,3,5]], new_clust, "Result/Fig/CorPhenMod.png");
+CorPhenMod(Data[:,5:end], Phen[:,[2,3,5]], new_clust, "Result/Fig/CorPhenMod.png");
 ```
 
 ## Documentation
