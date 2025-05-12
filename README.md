@@ -20,7 +20,7 @@ using SGCRNAs
 Data = CSV.read("Result/Norm/normalizedCounts_coding.tsv", header=1, comment="#", delim='\t', DataFrame);
 
 # Pre-proccessing
-CorData, GradData = CGM(Data.Symbol, Matrix(Data[:,5:end]), fn="Result/coding-FTEST", mode=:FTEST);
+CorData, GradData = CGM(Data.Symbol, Matrix(Data[:,5:end]), mode=:FTEST);
 
 # Clustering
 clust, pos, edge_data = SpectralClustering(CorData, GradData);
