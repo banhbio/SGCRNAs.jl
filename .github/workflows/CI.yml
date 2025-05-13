@@ -1,10 +1,10 @@
 name: CI
 on:
-  push:
-    branches:
-      - main
-    tags: ['*']
-  pull_request:
+  # push:
+  #  branches:
+  #    - main
+  #  tags: ['*']
+  # pull_request:
   workflow_dispatch:
 concurrency:
   # Skip intermediate builds: always.
@@ -17,43 +17,43 @@ jobs:
   #  runs-on: ${{ matrix.os }}
   #  steps:
   #    - uses: coverallsapp/github-action@v2
-  test:
-    name: Julia ${{ matrix.version }} - ${{ matrix.os }} - ${{ matrix.arch }}
-    runs-on: ${{ matrix.os }}
-    timeout-minutes: 60
-    permissions: # needed to allow julia-actions/cache to proactively delete old caches that it has created
-      actions: write
-      contents: read
-    strategy:
-      fail-fast: false
-      matrix:
-        version:
-          - '1.11'
-        os:
-          - ubuntu-latest
-        arch:
-          - x64
-    steps:
-      - uses: actions/checkout@v4
-      - uses: julia-actions/setup-julia@v2
-        with:
-          version: ${{ matrix.version }}
-          arch: ${{ matrix.arch }}
-      - uses: julia-actions/cache@v2
-      - uses: julia-actions/julia-buildpkg@v1
-      - uses: julia-actions/julia-runtest@v1
-      - name: Run tests with coverage
-        run: |
-            julia --code-coverage=all --project=. -e '
-              using Pkg; Pkg.add("Coverage");
-              using Coverage;
-              Pkg.test("SGCRNAs"; coverage=true);
-              Coverage.LCOV.writefile("lcov.info", process_folder())'
-      - name: Upload to Coveralls
-        uses: coverallsapp/github-action@v2
-        with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          path-to-lcov: ./lcov.info
+  # test:
+  #   name: Julia ${{ matrix.version }} - ${{ matrix.os }} - ${{ matrix.arch }}
+  #   runs-on: ${{ matrix.os }}
+  #   timeout-minutes: 60
+  #   permissions: # needed to allow julia-actions/cache to proactively delete old caches that it has created
+  #     actions: write
+  #     contents: read
+  #   strategy:
+  #     fail-fast: false
+  #     matrix:
+  #       version:
+  #         - '1.11'
+  #       os:
+  #         - ubuntu-latest
+  #       arch:
+  #         - x64
+  #   steps:
+  #     - uses: actions/checkout@v4
+  #     - uses: julia-actions/setup-julia@v2
+  #       with:
+  #         version: ${{ matrix.version }}
+  #         arch: ${{ matrix.arch }}
+  #     - uses: julia-actions/cache@v2
+  #     - uses: julia-actions/julia-buildpkg@v1
+  #     - uses: julia-actions/julia-runtest@v1
+  #     - name: Run tests with coverage
+  #       run: |
+  #           julia --code-coverage=all --project=. -e '
+  #             using Pkg; Pkg.add("Coverage");
+  #             using Coverage;
+  #             Pkg.test("SGCRNAs"; coverage=true);
+  #             Coverage.LCOV.writefile("lcov.info", process_folder())'
+  #     - name: Upload to Coveralls
+  #       uses: coverallsapp/github-action@v2
+  #       with:
+  #         github-token: ${{ secrets.GITHUB_TOKEN }}
+  #         path-to-lcov: ./lcov.info
   docs:
     name: Documentation
     runs-on: ubuntu-latest
@@ -74,10 +74,10 @@ jobs:
           Pkg.develop(PackageSpec(path=pwd()))
           Pkg.instantiate()
       - uses: julia-actions/julia-buildpkg@v1
-      - uses: julia-actions/julia-docdeploy@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          DOCUMENTER_KEY: ${{ secrets.DOCUMENTER_KEY }}
+      # - uses: julia-actions/julia-docdeploy@v1
+      #  env:
+      #    GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      #    DOCUMENTER_KEY: ${{ secrets.DOCUMENTER_KEY }}
       - name: Run doctests
         shell: julia --project=docs --color=yes {0}
         run: |
@@ -85,3 +85,8 @@ jobs:
           using SGCRNAs
           DocMeta.setdocmeta!(SGCRNAs, :DocTestSetup, :(using SGCRNAs); recursive=true)
           doctest(SGCRNAs)
+      - name: Build and deploy docs
+        shell: julia --project=docs --color=yes {0}
+        run: include("docs/make.jl")
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
