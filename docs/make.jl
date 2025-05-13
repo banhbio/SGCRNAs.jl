@@ -26,6 +26,5 @@ deploydocs(;
     versions = [
 	"latest" => "main",
 	"v1.0.0" => "v1.0.0",
-    ],
-    latest = "latest"
+    ]
 )
