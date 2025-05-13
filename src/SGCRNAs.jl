@@ -29,21 +29,20 @@ module SGCRNAs
 
     ##### correlation & gradient matrix calculation #####
         """
-        # argument
-        - gene: gene name list
-        - data: gene expression matrix
-        - threshold: value for remove genes with more than a certain number of zeros
-        - mode: mode of measurement errors elimination
-                - NONE -> measurement error is not considered (Select this option when there are sufficient number of samples; Default)
-                - :LESS -> defined as the value below the mode
-                - :SIGMA -> defined as the value below the 2σ(mode is considered as σ)
-                - :FTEST -> defined as the value below the significantly different from the mode by pval
-        - binSize: histogram bin size used to determine measurement error when mode is other than :NONE
-        - pval: p-value for determining measurement error using :FTEST & Statistical tests of correlation coefficients
-        - power: Power in statistical tests of correlation coefficients.
-        　
+        # arguments
+        - gene::Vector: gene name list
+        - data::Matrix: gene expression matrix
+        - threshold::Float64: value for remove genes with more than a certain number of zeros; default: 0.5
+        - mode::Symbol: mode of measurement errors elimination
+          - :NONE -> measurement error is not considered (Select this option when there are sufficient number of samples; Default)
+          - :LESS -> defined as the value below the mode
+          - :SIGMA -> defined as the value below the 2σ(mode is considered as σ)
+          - :FTEST -> defined as the value below the significantly different from the mode by pval
+        - binSize::Float64: histogram bin size used to determine measurement error when mode is other than :NONE; default: 0.01
+        - pval::Float64: p-value for determining measurement error using :FTEST & Statistical tests of correlation coefficients; default: 0.05
+        - power::Float64: Power in statistical tests of correlation coefficients; default: 0.8
         # returns
-        - CorData: correlation matrix  
+        - CorData: correlation matrix
         - GradData: gradient matrix
         """
         function CGM(gene::Vector, data::Matrix; threshold::Float64=0.5, mode::Symbol=:NONE, binSize::Float64=0.01, pval::Float64=0.05, power::Float64=0.8)
@@ -79,7 +78,7 @@ module SGCRNAs
                 barplot!(ax2, xs, freqCurve, color=[x <= cvMode*2 ? "red" : "blue" for x in xs], gap=0)
                 barplot!(ax3, xs, freqCurve, color=[x <= cvMode*sqrt(quantile(FDist(SmplNum-1, SmplNum-1), 1 - pval)) ? "red" : "blue" for x in xs], gap=0)
                 Label(f[end+1, :], text="standard deviation")
-                CairoMakie.save(fn * "_freqCurve.png", f)
+                CairoMakie.save("freqCurve.png", f)
 
                 if mode == :LESS
                     # Remove cvMode and below
@@ -217,23 +216,22 @@ module SGCRNAs
             return emb, res.assignments
         end
         """
-        argument  
-        cor: dataframe of correlation matrix (return value of CGM())  
-        grad: dataframe of gradient matrix (return value of CGM())  
-        tNodeNum: threshold of sub-cluster node number; default: 100  
-        depthMax: Depth of sub-clusters; default: 5  
-        pcas: pca dimention; default: 99  
-        itr: number of trials; default: 300  
-        seed: seed value of random number; default: 42 (Answer to the Ultimate Question of Life, the Universe, and Everything)  
-        nNeighbors: UMAP parameter; default: 40  
-        minDist: UMAP parameter; default: 0.1  
-        normFlg: Whether to symmetrically normalize the Laplacian matrix; default: false  
-        randNormFlg: Whether to random walk normalize the Laplacian matrix; default: false  
-        　
-        returns  
-        clust: cluster number of each gene  
-        pos: gene position for drawing network  
-        edgeScore: edge score for drawing network  
+        # arguments
+        - cor::DataFrame: dataframe of correlation matrix (return value of CGM())
+        - grad::DataFrame: dataframe of gradient matrix (return value of CGM())
+        - tNodeNum::Int64: threshold of sub-cluster node number; default: 100
+        - depthMaxv: Depth of sub-clusters; default: 5
+        - pcas::Int64: pca dimention; default: 99
+        - itr::Int64: number of trials; default: 300
+        - seed::Int64: seed value of random number; default: 42 (Answer to the Ultimate Question of Life, the Universe, and Everything)
+        - nNeighbors::Int64: UMAP parameter; default: 40
+        - minDist::Float64: UMAP parameter; default: 0.1
+        - normFlg::Bool: Whether to symmetrically normalize the Laplacian matrix; default: true
+        - randNormFlg::Bool: Whether to random walk normalize the Laplacian matrix; default: false
+        # returns
+        - clust: cluster number of each gene
+        - pos: gene position for drawing network
+        - edgeScore: edge score for drawing network
         """
         function SpectralClustering(cor::DataFrame, grad::DataFrame; tNodeNum::Int64=100, depthMax::Int64=5, pcas::Int64=99, itr::Int64=300, seed::Int64=42, nNeighbors::Int64=40, minDist::Float64=0.1, normFlg::Bool=true, randNormFlg::Bool=false)
             rowNum = size(cor, 1)
@@ -272,18 +270,17 @@ module SGCRNAs
 
     ##### draw network #####
         """
-        argument  
-        df: dataframe of correlation matrix (return value of CGM())  
-        clust: cluster number of each gene (one of return value of SpectralClustering())  
-        pos: gene position for drawing network (one of return value of SpectralClustering())  
-        il: module number list which you want to draw  
-        　
-        return  
-        nw: undirected graph  
-        pos: node position  
-        cnctdf: converted correlation matrix  
-        clust: cluster number of each gene in network  
-        score: node scores
+        # arguments
+        - df::DataFrame: dataframe of correlation matrix (return value of CGM())
+        - clust::Vector{Int64}: cluster number of each gene (one of return value of SpectralClustering())
+        - pos::Matrix: gene position for drawing network (one of return value of SpectralClustering())
+        - il::Vector: module number list which you want to draw
+        # returns
+        - nw: undirected graph
+        - pos: node position
+        - cnctdf: converted correlation matrix
+        - clust: cluster number of each gene in network
+        - score: node scores
         """    
         function SetNetwork(df::DataFrame, clust::Vector{Int64}, pos::Matrix; il::Vector=[])
             ##### preliminaries #####
@@ -345,22 +342,23 @@ module SGCRNAs
         end
         export SetNetwork
         """
-        fn: figure save name  
-        nw: network graph (one of return value of SetNetwork())  
-        pos: node position (one of return value of SetNetwork())  
-        cnctdf: converted correlation matrix (one of return value of SetNetwork())  
-        clust: cluster number of each gene in network (one of return value of SetNetwork())  
-        k: number of clusters  
-        node_scores: weight of node  
-        node_labels: label of node  
-        node_scaler: multiple for node diameter adjustment (Default: 100)  
-        edge_mode: mode of edges to be drawn  
-                :ALL -> All edges are drawn (Default)  
-                :N -> Only draw edges with negative values.  
-                :P -> Only draw edges with positive values.  
-        edge_threshold: Threshold value of edges to be drawn. (Default: 0.0)  
-        edge_scaler: multiple for edge thickness adjustment (Default: 5)  
-        x_size, y_size: Size of the drawing area (Default: 100, 100)
+        # arguments
+        - fn: figure save name
+        - nw: network graph (one of return value of SetNetwork())
+        - pos: node position (one of return value of SetNetwork())
+        - cnctdf: converted correlation matrix (one of return value of SetNetwork())
+        - clust: cluster number of each gene in network (one of return value of SetNetwork())
+        - k: number of clusters
+        - node_scores: weight of node
+        - node_labels: label of node
+        - node_scaler: multiple for node diameter adjustment; Default: 100
+        - edge_mode: mode of edges to be drawn
+          - :ALL -> All edges are drawn (Default)
+          - :N -> Only draw edges with negative values
+          - :P -> Only draw edges with positive values
+        - edge_threshold: Threshold value of edges to be drawn; Default: 0.0
+        - edge_scaler: multiple for edge thickness adjustment; Default: 5
+        - x_size, y_size: Size of the drawing area; Default: 100, 100
         """
         function DrawNetwork(fn::String, nw::SimpleGraph, pos::Matrix, cnctdf::DataFrame, clust::Vector{Int64}, k::Int64; node_scores::Vector{}=[], node_labels::Vector{}=[], node_color::Vector=[], node_scaler::Int64=100, edge_mode::Symbol=:ALL, edge_threshold::Float64=0.0, edge_scaler::Int64=5, x_size::Int64=50, y_size::Int64=50)
             gene_num = nv(nw)
@@ -411,24 +409,28 @@ module SGCRNAs
 
     ##### Correlation of Phenomenon and Modules #####
         """
-        argument
-        df1: dataframe of gene expression  
-        df2: dataframe of Phenomenon  
-        clust: cluster number of each gene (one of return value of SpectralClustering())  
-        fn: fig save name  
-        cor_mode: all gene average (:A_AVG) / positive correlation gene average (:P_AVG) / negative correlation gene average (:N_AVG) / All three types are drawn (:ALL; default)  
-        FontSize: set when drawing the average value of the correlation coefficient on the heat map
+        # arguments
+        - df1::DataFrame: dataframe of gene expression
+        - df2::DataFrame: dataframe of Phenomenon
+        - clust::Vector{Int64}: cluster number of each gene (one of return value of SpectralClustering())
+        - fn::String: fig save name
+        - cor_mode::Symbol: mode of caluclation of correlation coefficient
+          - :ALL -> All three types are drawn (default)
+          - :A_AVG -> all gene average
+          - :P_AVG -> positive correlation gene average
+          - :N_AVG -> negative correlation gene average
         """
-        function CorPhenMod(df1::DataFrame, df2::DataFrame, clust::Vector{Int64}, fn::String; cor_mode::Symbol=:ALL, FontSize::Int64=0)
-            kmax = length(unique(clust))
+        function CorPhenMod(df1::DataFrame, df2::DataFrame, clust::Vector{Int64}, fn::String; cor_mode::Symbol=:ALL)
+            kuni =  sort(unique(clust))
+            knum = length(kuni)
 
             CorList = []
             for i in 1:ncol(df2)
-                push!(CorList, [[] for i=1:kmax])
+                push!(CorList, [[] for i=1:knum])
             end
-            for k in 1:kmax
+            for k in 1:knum
                 for i in 1:ncol(df2)
-                    buf = df1[clust .== k, :]
+                    buf = df1[clust .== kuni[k], :]
 		            Result_each = zeros(nrow(buf))
                     for j in 1:nrow(buf)
                         Result_each[j] = cor(Array(buf[j,:]), df2[:,i])
@@ -438,14 +440,14 @@ module SGCRNAs
             end
 
             x = collect(1:ncol(df2))
-            y = collect(kmax:-1:1)
+            y = collect(knum:-1:1)
 
-            f = Figure(size=(ncol(df2)*400+200, kmax*30))
+            f = Figure(size=(ncol(df2)*400+200, knum*40+50))
             ax = []
             for i in 1:length(CorList)
                 push!(ax, Axis(f[1, i], xgridvisible=false, ygridvisible=false, xticksvisible=false, yticksvisible=false, xticks=collect(-1.0:0.5:1.0), limits=((-1,1), nothing)))
                 if (i==1)
-                    ax[1].yticks = (y,"module ".*string.(collect(1:kmax)))
+                    ax[1].yticks = (y,"module ".*string.(kuni))
                 else
                     ax[i].yticklabelsvisible = false
                     linkyaxes!(ax[1], ax[i])
@@ -453,7 +455,7 @@ module SGCRNAs
                 hidespines!(ax[i])
                 ax[i].title = names(df2)[i]
                 for k in 1:length(CorList[1])
-                    density!(ax[i], convert.(Float64,CorList[i][k]), offset=(kmax-k+1), color=:x, colormap=(:bwr,0.4), colorrange=(-1.0,1.0), strokewidth=1, strokecolor=:black)
+                    density!(ax[i], convert.(Float64,CorList[i][k]), offset=(knum-k+1), color=:x, colormap=(:bwr,0.4), colorrange=(-1.0,1.0), strokewidth=1, strokecolor=:black)
                 end
             end
             save(fn, f)
