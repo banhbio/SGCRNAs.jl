@@ -1,10 +1,3 @@
-```@meta
-CurrentModule = SGCRNAs
-```
-
-```@index
-```
-
 # Quick Start
 SGCRNAs consists of five functions:
 - CGM: Performs preprocessing for clustering.
@@ -13,7 +6,7 @@ SGCRNAs consists of five functions:
 - DrawNetwork: Generates the network graph.
 
 ## Example
-```
+```julia
 using CSV, DataFrames
 using SGCRNAs
 

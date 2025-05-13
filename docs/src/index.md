@@ -1,18 +1,3 @@
-```@meta
-CurrentModule = SGCRNAs
-```
-
-# SGCRNAs
-
-Documentation for [SGCRNAs](https://github.com/C37H41N2O6/SGCRNAs.jl).
-
-```@index
-```
-
-```@autodocs
-Modules = [SGCRNAs]
-```
-
 # SGCRNAs
 SGCRNAs is a library for SGCRNA (Spectral-clustering Generalised Correlation Regression Network Analysis).  
 SGCRNA is a method for the analysis of co-expression networks, grounded in correlation and linear relationships. This method is applicable not only to transcriptomic data, but also to metagenomic, proteomic, and metabolomic variables, and accommodates a wide range of dataset types, including standard samples, time-course data, single-cell data, and spatially resolved datasets.

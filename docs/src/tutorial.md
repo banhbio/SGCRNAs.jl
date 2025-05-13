@@ -1,15 +1,3 @@
-```@meta
-CurrentModule = SGCRNAs
-```
-
-```@index
-```
-
-cd("code/SGCRNAs")
-activate .
-cd("../../GSE114007")
-Data = CSV.read("Result/Norm/normalizedCounts_coding.tsv", header=1, comment="#", delim='\t', DataFrame);
-
 # Tutorial
 In this tutorial, we use the dataset [GSE114007](https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE114007), as described in the SGCRNA publication.
 - [RNA expression matrix](assets/normalizedCounts_coding.tsv)

@@ -16,6 +16,7 @@ makedocs(;
         "Home" => "index.md",
 	"Quick Start" => "quickstart.md",
 	"Tutorial" => "tutorial.md",
+	"Reference" => "reference.md",
     ],
 )
 
