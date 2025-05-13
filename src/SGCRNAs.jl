@@ -29,22 +29,22 @@ module SGCRNAs
 
     ##### correlation & gradient matrix calculation #####
         """
-        argument  
-        gene: gene name list  
-        data: gene expression matrix  
-        threshold: value for remove genes with more than a certain number of zeros  
-        mode: mode of measurement errors elimination  
-                :NONE -> measurement error is not considered (Select this option when there are sufficient number of samples; Default)  
-                :LESS -> defined as the value below the mode  
-                :SIGMA -> defined as the value below the 2σ(mode is considered as σ)  
-                :FTEST -> defined as the value below the significantly different from the mode by pval  
-        binSize: histogram bin size used to determine measurement error when mode is other than :NONE  
-        pval: p-value for determining measurement error using :FTEST & Statistical tests of correlation coefficients  
-        power: Power in statistical tests of correlation coefficients.  
+        # argument
+        - gene: gene name list
+        - data: gene expression matrix
+        - threshold: value for remove genes with more than a certain number of zeros
+        - mode: mode of measurement errors elimination
+                - NONE -> measurement error is not considered (Select this option when there are sufficient number of samples; Default)
+                - :LESS -> defined as the value below the mode
+                - :SIGMA -> defined as the value below the 2σ(mode is considered as σ)
+                - :FTEST -> defined as the value below the significantly different from the mode by pval
+        - binSize: histogram bin size used to determine measurement error when mode is other than :NONE
+        - pval: p-value for determining measurement error using :FTEST & Statistical tests of correlation coefficients
+        - power: Power in statistical tests of correlation coefficients.
         　
-        returns  
-        CorData: correlation matrix  
-        GradData: gradient matrix
+        # returns
+        - CorData: correlation matrix  
+        - GradData: gradient matrix
         """
         function CGM(gene::Vector, data::Matrix; threshold::Float64=0.5, mode::Symbol=:NONE, binSize::Float64=0.01, pval::Float64=0.05, power::Float64=0.8)
             SmplNum = size(data, 2)
