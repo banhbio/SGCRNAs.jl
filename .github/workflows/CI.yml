@@ -86,8 +86,6 @@ jobs:
           DocMeta.setdocmeta!(SGCRNAs, :DocTestSetup, :(using SGCRNAs); recursive=true)
           doctest(SGCRNAs)
       - name: Build and deploy docs
-        working-directory: ${{ github.workspace }}
-        shell: julia --project=docs --color=yes {0}
-        run: include("docs/make.jl")
+        run: julia --project=docs docs/make.jl
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
