@@ -1,4 +1,4 @@
-# SGCRNAs [![Build Status](https://github.com/C37H41N2O6/SGCRNAs/actions/workflows/CI.yml/badge.svg?branch=main)](https://github.com/C37H41N2O6/SGCRNAs/actions/workflows/CI.yml?query=branch%3Amain) [![Coverage Status](https://coveralls.io/repos/github/C37H41N2O6/SGCRNAs/badge.svg?branch=main)](https://coveralls.io/github/C37H41N2O6/SGCRNAs?branch=main) [![Dev](https://img.shields.io/badge/docs-dev-blue.svg)](https://C37H41N2O6.github.io/SGCRNAs/dev/)
+# SGCRNAs [![Build Status](https://github.com/C37H41N2O6/SGCRNAs.jl/actions/workflows/CI.yml/badge.svg?branch=main)](https://github.com/C37H41N2O6/SGCRNAs.jl/actions/workflows/CI.yml?query=branch%3Amain) [![Coverage Status](https://coveralls.io/repos/github/C37H41N2O6/SGCRNAs.jl/badge.svg?branch=main)](https://coveralls.io/github/C37H41N2O6/SGCRNAs.jl?branch=main) [![Dev](https://img.shields.io/badge/docs-dev-blue.svg)](https://C37H41N2O6.github.io/SGCRNAs.jl/dev/)
 
 ## About SGCRNAs
 [Excerpt from the paper's abstract]  
@@ -38,7 +38,7 @@ CorPhenMod(Data[:,5:end], Phen[:,[2,3,5]], new_clust, "Result/Fig/CorPhenMod.png
 ```
 
 ## Documentation
-Full documentation is available at: https://C37H41N2O6.github.io/SGCRNAs
+Full documentation is available at: https://C37H41N2O6.github.io/SGCRNAs.jl
 
 ## License
 This project is licensed under the MIT License. See LICENSE for details.
