@@ -21,7 +21,7 @@ makedocs(;
 )
 
 deploydocs(;
-    repo="github.com/C37H41N2O6/SGCRNAs.jl",
+    repo="github.com/C37H41N2O6/SGCRNAs.jl.git",
     devbranch="main",
     versions = [
 	"latest" => "main",
