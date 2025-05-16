@@ -38,7 +38,7 @@ CorPhenMod(Data[:,5:end], Phen[:,[2,3,5]], new_clust, "Result/Fig/CorPhenMod.png
 ```
 
 ## Documentation
-Full documentation is available at: https://C37H41N2O6.github.io/SGCRNAs.jl/dev
+Full documentation is available at: https://C37H41N2O6.github.io/SGCRNAs.jl/
 
 ## License
 This project is licensed under the MIT License. See LICENSE for details.
