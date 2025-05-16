@@ -1,4 +1,4 @@
-# SGCRNAs [![Build Status](https://github.com/C37H41N2O6/SGCRNAs.jl/actions/workflows/CI.yml/badge.svg?branch=main)](https://github.com/C37H41N2O6/SGCRNAs.jl/actions/workflows/CI.yml?query=branch%3Amain) [![Coverage Status](https://coveralls.io/repos/github/C37H41N2O6/SGCRNAs.jl/badge.svg?branch=main)](https://coveralls.io/github/C37H41N2O6/SGCRNAs.jl?branch=main) [![Dev](https://img.shields.io/badge/docs-dev-blue.svg)](https://C37H41N2O6.github.io/SGCRNAs.jl/dev/)
+# SGCRNAs [![Build Status](https://github.com/C37H41N2O6/SGCRNAs.jl/actions/workflows/CI.yml/badge.svg?branch=main)](https://github.com/C37H41N2O6/SGCRNAs.jl/actions/workflows/CI.yml?query=branch%3Amain) [![Coverage Status](https://coveralls.io/repos/github/C37H41N2O6/SGCRNAs.jl/badge.svg?branch=main)](https://coveralls.io/github/C37H41N2O6/SGCRNAs.jl?branch=main) [![Dev](https://img.shields.io/badge/docs-dev-blue.svg)](https://C37H41N2O6.github.io/SGCRNAs.jl/)
 
 ## About SGCRNAs
 [Excerpt from the paper's abstract]  
