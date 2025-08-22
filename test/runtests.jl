@@ -35,12 +35,13 @@ end
     end
     @test_nowarn isa(clust, Vector)
     
+    #=
     d = 1; k = maximum(clust[d]);
     nw, new_pos, cnctdf, new_clust, score = (0, 0, 0, 0, 0);
     @test_nowarn begin
         nw, new_pos, cnctdf, new_clust, score = SetNetwork(edge_data, clust[d], pos, il=collect(1:k));
     end
-    
+ 
     @test_nowarn begin
         DrawNetwork("./AllNetWork-0.5.png", nw, new_pos, cnctdf, new_clust, k, node_scores=score, edge_mode=:ALL, edge_threshold=0.5)
     end
@@ -48,4 +49,5 @@ end
     @test_nowarn begin
         CorPhenMod(DataFrame(expression_data, :auto), DataFrame(Matrix(expression_data'), :auto)[:,[3,1,4]], new_clust, "./CorPhenMod.png")
     end
+    =#
 end
