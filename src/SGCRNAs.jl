@@ -9,6 +9,7 @@ module SGCRNAs
     using Graphs, Colors
 
 
+    export CGM, SpectralClustering, SetNetwork, CorPhenMod
     ##### correlation & gradient matrix calculation #####
         """
         # arguments
@@ -119,7 +120,6 @@ module SGCRNAs
 
             return CorData, GradData
         end
-        export CGM
     ##### correlation matrix calculation #####
 
     ##### Laplacian matrix calculation #####
@@ -227,7 +227,6 @@ module SGCRNAs
 
             return clustData, Matrix(permutedims(embedding)), cor .* exp.(-1 .* abs.(log.(abs.(grad))))
         end
-        export SpectralClustering
     ##### SpectralClustering #####
 
 
@@ -267,6 +266,5 @@ module SGCRNAs
             y = collect(knum:-1:1)
 
         end
-        export CorPhenMod
     ##### Correlation of Phenomenon and Modules #####
 end
