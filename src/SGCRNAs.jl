@@ -43,26 +43,6 @@ module SGCRNAs
                 freqCurve = pdf(kde(cvList), [0.0:binSize:ceil(maximum(cvList))])[1]
                 cvMode = binSize * (argmax(freqCurve) - 1)
 
-                # plot freqCurve
-                xs = collect(0.0:binSize:ceil(maximum(cvList)))
-                f = Figure(size = (1300, 400))
-                ax1 = Axis(f[1, 1], title = ":LESS", ylabel="probability density", xautolimitmargin=(0.0f0, 0.0f0), yautolimitmargin=(0.0f0, 0.0f0))
-                ax2 = Axis(f[1, 2], title = ":SIGMA", xautolimitmargin=(0.0f0, 0.0f0), yautolimitmargin=(0.0f0, 0.0f0), yticklabelsvisible=false)
-                ax3 = Axis(f[1, 3], title = ":FTEST", xautolimitmargin=(0.0f0, 0.0f0), yautolimitmargin=(0.0f0, 0.0f0), yticklabelsvisible=false)
-                linkyaxes!(ax1, ax2)
-                linkyaxes!(ax1, ax3)
-                hidespines!(ax1, :t, :r)
-                hidespines!(ax2, :t, :r)
-                hidespines!(ax3, :t, :r)
-                hidedecorations!(ax1, label=false, ticklabels=false, ticks=false)
-                hidedecorations!(ax2, label=false, ticklabels=false, ticks=false)
-                hidedecorations!(ax3, label=false, ticklabels=false, ticks=false)
-                barplot!(ax1, xs, freqCurve, color=[x <= cvMode ? "red" : "blue" for x in xs], gap=0)
-                barplot!(ax2, xs, freqCurve, color=[x <= cvMode*2 ? "red" : "blue" for x in xs], gap=0)
-                barplot!(ax3, xs, freqCurve, color=[x <= cvMode*sqrt(quantile(FDist(SmplNum-1, SmplNum-1), 1 - pval)) ? "red" : "blue" for x in xs], gap=0)
-                Label(f[end+1, :], text="standard deviation")
-                CairoMakie.save("freqCurve.png", f)
-
                 if mode == :LESS
                     # Remove cvMode and below
                 elseif mode == :SIGMA
@@ -425,23 +405,6 @@ module SGCRNAs
             x = collect(1:ncol(df2))
             y = collect(knum:-1:1)
 
-            f = Figure(size=(ncol(df2)*400+200, knum*40+50))
-            ax = []
-            for i in 1:length(CorList)
-                push!(ax, Axis(f[1, i], xgridvisible=false, ygridvisible=false, xticksvisible=false, yticksvisible=false, xticks=collect(-1.0:0.5:1.0), limits=((-1,1), nothing)))
-                if (i==1)
-                    ax[1].yticks = (y,"module ".*string.(kuni))
-                else
-                    ax[i].yticklabelsvisible = false
-                    linkyaxes!(ax[1], ax[i])
-                end
-                hidespines!(ax[i])
-                ax[i].title = names(df2)[i]
-                for k in 1:length(CorList[1])
-                    density!(ax[i], convert.(Float64,CorList[i][k]), offset=(knum-k+1), color=:x, colormap=(:bwr,0.4), colorrange=(-1.0,1.0), strokewidth=1, strokecolor=:black)
-                end
-            end
-            save(fn, f)
         end
         export CorPhenMod
     ##### Correlation of Phenomenon and Modules #####
