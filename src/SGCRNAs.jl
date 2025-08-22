@@ -9,23 +9,6 @@ module SGCRNAs
     using NetworkLayout, GraphPlot, Graphs, Colors
     using Compose, CairoMakie, Fontconfig
 
-    ##### get rank of element #####
-        function ElmRank(arr::Vector, revflg::Bool)
-            sorted_indices = sortperm(arr, rev=revflg)
-            sorted_arr = arr[sorted_indices]
-            ranks = similar(arr)
-
-            rank = 1
-            for i in 1:length(arr)
-                if i > 1 && sorted_arr[i] != sorted_arr[i - 1]
-                    rank = i
-                end
-                ranks[sorted_indices[i]] = rank
-            end
-
-            return ranks
-        end
-    ##### get rank of element #####
 
     ##### correlation & gradient matrix calculation #####
         """
