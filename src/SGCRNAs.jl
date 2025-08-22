@@ -6,8 +6,7 @@ module SGCRNAs
     using LinearAlgebra, Statistics, MultivariateStats, Distributions, KernelDensity
     using ParallelKMeans, Clustering
     using Random, UMAP
-    using NetworkLayout, GraphPlot, Graphs, Colors
-    using Compose, CairoMakie, Fontconfig
+    using Graphs, Colors
 
 
     ##### correlation & gradient matrix calculation #####
