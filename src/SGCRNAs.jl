@@ -127,14 +127,14 @@ module SGCRNAs
     ##### correlation matrix calculation #####
 
     ##### Laplacian matrix calculation #####
-        function LaplacianMatrix(mat::Matrix, normFlg::Bool, randNormFlg::Bool)
-            nodeScores = sum.(eachrow(mat))
+        function laplacian(A::AbstractMatrix{T}; symnorm::Bool=true, rwnorm::Bool=false) where {T<:Real}
+            nodeScores = sum.(eachrow(A))
             matD = diagm(nodeScores)
-            matL = matD .- mat
-            if(normFlg)
-                matL = 1.0I(size(mat,2)) .- sqrt(inv(matD)) * matL * sqrt(inv(matD))
-            elseif(randNormFlg)
-                matL = 1.0I(size(mat,2)) .- inv(matD) * matL
+            matL = matD .- A
+            if symnorm
+                matL = 1.0I(size(A,2)) .- sqrt(inv(matD)) * matL * sqrt(inv(matD))
+            elseif rwnorm
+                matL = 1.0I(size(A,2)) .- inv(matD) * matL
             end
 
             return matL
@@ -166,7 +166,7 @@ module SGCRNAs
         function Clustering_Main(df::DataFrame, itr::Int64, seed::Int64, pcas::Int64, normFlg::Bool, randNormFlg::Bool)
             RndSeed = Random.seed!(seed)
 
-            matL = LaplacianMatrix(Matrix(df), normFlg, randNormFlg)
+            matL = laplacian(Matrix(df); symnorm=normFlg, rwnorm=randNormFlg)
             emb = Clustering_Eigen(matL, pcas, normFlg)
             k = size(emb,1)
 
