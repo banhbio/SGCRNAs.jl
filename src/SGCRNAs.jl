@@ -142,8 +142,8 @@ module SGCRNAs
     ##### Laplacian matrix calculation #####
 
     ##### clustering #####
-        function Clustering_Eigen(matL::Matrix, maxK::Int64, normFlg::Bool)
-            eigVals, eigVecs, eigInfo = eigsolve(matL, maxK+10, :SR, krylovdim=5*maxK)
+        function clustering_eigen(L::AbstractMatrix{<:Real}, maxK::Int64; row_normalize::Bool=true)
+            eigVals, eigVecs, eigInfo = eigsolve(L, maxK+10, :SR, krylovdim=5*maxK)
             eigVals = Real.(eigVals)
             eigVecs = Real.(reduce(hcat, eigVecs)')
 
@@ -153,7 +153,7 @@ module SGCRNAs
             k = sortedGaps[1] == 1 ? sortedGaps[2] : sortedGaps[1]
 
             embedding = eigVecs[1:k, :]
-            if (normFlg)
+            if row_normalize
                 buf = map(x -> x ./ sum(x .^ 2), eachrow(embedding))
                 embedding = reduce(hcat, buf)'
             end
@@ -167,7 +167,7 @@ module SGCRNAs
             RndSeed = Random.seed!(seed)
 
             matL = laplacian(Matrix(df); symnorm=normFlg, rwnorm=randNormFlg)
-            emb = Clustering_Eigen(matL, pcas, normFlg)
+            emb = clustering_eigen(matL, pcas; row_normalize=normFlg)
             k = size(emb,1)
 
             # k-means clustering by automatic k-value determination
