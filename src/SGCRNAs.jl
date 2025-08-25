@@ -9,11 +9,11 @@ module SGCRNAs
     using Graphs, Colors
 
 
-    export CGM, SpectralClustering, SetNetwork, CorPhenMod
+    export cgm, SpectralClustering, SetNetwork, CorPhenMod
     ##### correlation & gradient matrix calculation #####
         """
         # arguments
-        - gene::Vector: gene name list
+        - genes::Vector: gene name list
         - data::Matrix: gene expression matrix
         - threshold::Float64: value for remove genes with more than a certain number of zeros; default: 0.5
         - mode::Symbol: mode of measurement errors elimination
@@ -28,12 +28,16 @@ module SGCRNAs
         - CorData: correlation matrix
         - GradData: gradient matrix
         """
-        function CGM(gene::Vector, data::Matrix; threshold::Float64=0.5, mode::Symbol=:NONE, binSize::Float64=0.01, pval::Float64=0.05, power::Float64=0.8)
+        function cgm(genes::AbstractVector{<:AbstractString},
+                     data::AbstractMatrix{T};
+                     threshold::Float64=0.5, mode::Symbol=:NONE, bin_size::Float64=0.01, pval::Float64=0.05, power::Float64=0.8) where {T<:Real}
+            @assert size(genes, 1) == size(data, 1) "length of genes must match that of data" 
+        
             SmplNum = size(data, 2)
         
             # Remove genes with more than a certain number of zeros
             Q = map(x -> sum(x .== 0.0), eachrow(data))
-            Gene = gene[Q .< SmplNum * threshold]
+            Gene = genes[Q .< SmplNum * threshold]
             Data = data[Q .< SmplNum * threshold, :]
         
             # Eliminates measurement errors

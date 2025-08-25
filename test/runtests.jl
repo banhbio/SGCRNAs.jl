@@ -26,7 +26,7 @@ end
 @testset "Function tests" begin
     CorData, GradData = (0, 0);
     @test_nowarn begin
-        CorData, GradData = CGM(gene_names, expression_data);
+        CorData, GradData = cgm(gene_names, expression_data);
     end
     
     clust, pos, edge_data = (0, 0, 0);
