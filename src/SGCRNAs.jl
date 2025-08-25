@@ -9,7 +9,7 @@ module SGCRNAs
     using Graphs, Colors
 
 
-    export cgm, SpectralClustering, SetNetwork, CorPhenMod
+    export cgm, spectral_clustering, CorPhenMod
     ##### correlation & gradient matrix calculation #####
         """
         # arguments
@@ -142,7 +142,7 @@ module SGCRNAs
     ##### Laplacian matrix calculation #####
 
     ##### clustering #####
-        function clustering_eigen(L::AbstractMatrix{<:Real}, maxK::Int64; row_normalize::Bool=true)
+        function clustering_eigen(L::AbstractMatrix{<:Real}, maxK::Int64; symnorm::Bool=true)
             eigVals, eigVecs, eigInfo = eigsolve(L, maxK+10, :SR, krylovdim=5*maxK)
             eigVals = Real.(eigVals)
             eigVecs = Real.(reduce(hcat, eigVecs)')
@@ -153,7 +153,7 @@ module SGCRNAs
             k = sortedGaps[1] == 1 ? sortedGaps[2] : sortedGaps[1]
 
             embedding = eigVecs[1:k, :]
-            if row_normalize
+            if symnorm
                 buf = map(x -> x ./ sum(x .^ 2), eachrow(embedding))
                 embedding = reduce(hcat, buf)'
             end
@@ -163,20 +163,20 @@ module SGCRNAs
     ##### clustering #####
 
     ##### SpectralClustering #####
-        function Clustering_Main(df::DataFrame, itr::Int64, seed::Int64, pcas::Int64, normFlg::Bool, randNormFlg::Bool)
+        function clustering_main(A::AbstractMatrix{T}, iters::Int, seed::Int, pcas::Int, symnorm::Bool, rwnorm::Bool) where {T<:Real}
             RndSeed = Random.seed!(seed)
 
-            matL = laplacian(Matrix(df); symnorm=normFlg, rwnorm=randNormFlg)
-            emb = clustering_eigen(matL, pcas; row_normalize=normFlg)
+            L = laplacian(A; symnorm=symnorm, rwnorm=rwnorm)
+            emb = clustering_eigen(L, pcas; symnorm=symnorm)
             k = size(emb,1)
 
             # k-means clustering by automatic k-value determination
             if size(emb, 2) < 100
-                res = ParallelKMeans.kmeans(Hamerly(), emb, k, max_iters=itr, rng=RndSeed)
+                res = ParallelKMeans.kmeans(Hamerly(), emb, k, max_iters=iters, rng=RndSeed)
             elseif size(emb, 2) > 10000
-                res = ParallelKMeans.kmeans(Elkan(), emb, k, max_iters=itr, rng=RndSeed)
+                res = ParallelKMeans.kmeans(Elkan(), emb, k, max_iters=iters, rng=RndSeed)
             else
-                res = ParallelKMeans.kmeans(Yinyang(), emb, k, max_iters=itr, rng=RndSeed)
+                res = ParallelKMeans.kmeans(Yinyang(), emb, k, max_iters=iters, rng=RndSeed)
             end
 
             return emb, res.assignments
@@ -199,20 +199,21 @@ module SGCRNAs
         - pos: gene position for drawing network
         - edgeScore: edge score for drawing network
         """
-        function SpectralClustering(cor::DataFrame, grad::DataFrame; tNodeNum::Int64=100, depthMax::Int64=5, pcas::Int64=99, itr::Int64=300, seed::Int64=42, nNeighbors::Int64=40, minDist::Float64=0.1, normFlg::Bool=true, randNormFlg::Bool=false)
+        function spectral_clustering(cor::AbstractMatrix{T}, grad::AbstractMatrix{T};
+            t_nodes::Int=100, depth_max::Int=5, pcas::Int=99, iters::Int=300, seed::Int=42, n_neighbors::Int64=40, min_dist::Float64=0.1, symnorm::Bool=true, rwnorm::Bool=false) where {T<:Real}
             rowNum = size(cor, 1)
             df = ((1 .+ cor) ./ 2) .* exp.(-1 .* abs.(log.(abs.(grad))))
             # Laplacian matrix calculation
-            emb, clust = Clustering_Main(df, itr, seed, pcas, normFlg, randNormFlg)
+            emb, clust = clustering_main(df, iters, seed, pcas, symnorm, rwnorm)
             clustData = [clust]
             kMax = maximum(clust); d = 0;
-            while ((maximum(map(x -> sum(clustData[d+1] .== x), 1:kMax)) > tNodeNum) & (d < depthMax))
+            while ((maximum(map(x -> sum(clustData[d+1] .== x), 1:kMax)) > t_nodes) & (d < depth_max))
                 append!(clustData, deepcopy([clustData[d+1]]))
                 for k in 1:kMax
                     Q = (clustData[d+2] .== k)
                     subDF = df[Q, Q]
-                    if size(subDF, 2) > tNodeNum
-                        _, subClust = Clustering_Main(subDF, itr, seed, pcas, normFlg, randNormFlg)
+                    if size(subDF, 2) > t_nodes
+                        _, subClust = clustering_main(subDF, iters, seed, pcas, symnorm, rwnorm)
                         subClust .-= 1
                         subClust[subClust .!= 0] .+= kMax
                         subClust[subClust .== 0] .= k
@@ -223,8 +224,8 @@ module SGCRNAs
                 d += 1
             end
 
-            if (size(emb, 1) > 2)
-                embedding = umap(emb, 2; n_neighbors=nNeighbors, min_dist=minDist)
+            if size(emb, 1) > 2
+                embedding = umap(emb, 2; n_neighbors=n_neighbors, min_dist=min_dist)
             else
                 embedding = emb
             end

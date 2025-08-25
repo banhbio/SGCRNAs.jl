@@ -31,7 +31,7 @@ end
     
     clust, pos, edge_data = (0, 0, 0);
     redirect_stderr(devnull) do
-        clust, pos, edge_data = SpectralClustering(CorData, GradData);
+        clust, pos, edge_data = spectral_clustering(Matrix(CorData), Matrix(GradData));
     end
     @test_nowarn isa(clust, Vector)
     
