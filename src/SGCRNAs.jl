@@ -129,15 +129,15 @@ module SGCRNAs
     ##### Laplacian matrix calculation #####
         function laplacian(A::AbstractMatrix{T}; symnorm::Bool=true, rwnorm::Bool=false) where {T<:Real}
             nodeScores = sum.(eachrow(A))
-            matD = diagm(nodeScores)
-            matL = matD .- A
+            D = diagm(nodeScores)
+            L = D .- A
             if symnorm
-                matL = 1.0I(size(A,2)) .- sqrt(inv(matD)) * matL * sqrt(inv(matD))
+                L = 1.0I(size(A,2)) .- sqrt(inv(D)) * L * sqrt(inv(D))
             elseif rwnorm
-                matL = 1.0I(size(A,2)) .- inv(matD) * matL
+                L = 1.0I(size(A,2)) .- inv(D) * matL
             end
 
-            return matL
+            return L
         end
     ##### Laplacian matrix calculation #####
 
