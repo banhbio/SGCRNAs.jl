@@ -9,7 +9,7 @@ module SGCRNAs
     using Graphs, Colors
 
 
-    export cgm, spectral_clustering, CorPhenMod
+    export cgm, spectral_clustering, cor_module_phenomenon
     ##### correlation & gradient matrix calculation #####
         """
         # arguments
@@ -235,7 +235,7 @@ module SGCRNAs
     ##### SpectralClustering #####
 
 
-    ##### Correlation of Phenomenon and Modules #####
+    ##### Correlation of Modules and Phenomenon #####
         """
         # arguments
         - df1::DataFrame: dataframe of gene expression
@@ -248,8 +248,10 @@ module SGCRNAs
           - :P_AVG -> positive correlation gene average
           - :N_AVG -> negative correlation gene average
         """
-        function CorPhenMod(df1::DataFrame, df2::DataFrame, clust::Vector{Int64}, fn::String; cor_mode::Symbol=:ALL)
-            kuni =  sort(unique(clust))
+        function cor_module_phenomenon(X::AbstractMatrix, P::AbstractMatrix, clust::AbstractVector{<:Integer}; cor_mode::Symbol=:ALL)
+            @assert size(X,2) == size(P,2) "samples must match"
+
+            kuni = sort(unique(clust))
             knum = length(kuni)
 
             CorList = []
@@ -271,5 +273,5 @@ module SGCRNAs
             y = collect(knum:-1:1)
 
         end
-    ##### Correlation of Phenomenon and Modules #####
+    ##### Correlation of Modules and Phenomenon #####
 end

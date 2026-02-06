@@ -47,7 +47,7 @@ end
     end
     
     @test_nowarn begin
-        CorPhenMod(DataFrame(expression_data, :auto), DataFrame(Matrix(expression_data'), :auto)[:,[3,1,4]], new_clust, "./CorPhenMod.png")
+        cor_module_phenomenon(expression_data, expression_data'[:,[3,1,4]], clust)
     end
     =#
 end
