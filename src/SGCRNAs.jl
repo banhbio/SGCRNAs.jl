@@ -1,9 +1,11 @@
 module SGCRNAs
     using Dates
+    using Printf
     using CSV, DataFrames
     using KrylovKit
     using StatsBase
     using LinearAlgebra, Statistics, MultivariateStats, Distributions, KernelDensity
+    using HypothesisTests, MultipleTesting
     using ParallelKMeans, Clustering
     using Random, UMAP
     using Graphs, Colors
@@ -235,43 +237,225 @@ module SGCRNAs
     ##### SpectralClustering #####
 
 
+<<<<<<< HEAD
     ##### Correlation of Modules and Phenomenon #####
+=======
+                # Convert to upper triangular matrix
+                triu!(cnctdf)
+                cnctdf = DataFrame(hcat(gene_list,cnctdf), vcat(["Symbol"],gene_list))
+                cnctdf = stack(cnctdf, 2:ncol(cnctdf))
+                rename!(cnctdf, [:e1,:e2,:cor])
+                # Remove correlations in the same gene and duplicate combinations
+                ## Correlation coefficients between themselves are set to 0.
+                ## The overlapping combinations have a correlation coefficient of zero
+                ## due to the conversion to an upper triangular matrix.
+                cnctdf = cnctdf[cnctdf.cor .!= 0.0, :]
+                sort!(cnctdf, :e1)
+            
+                # Assign node numbers to genes
+                buf = DataFrame(e1=sort(unique(vcat(cnctdf.e1, cnctdf.e2))))
+                buf[!, :i1] = collect(1:nrow(buf))
+                cnctdf = innerjoin(cnctdf, buf, on=:e1)
+                rename!(buf, [:e2,:i2])
+                cnctdf = innerjoin(cnctdf, buf, on=:e2)
+
+                # Assign module numbers to genes
+                buf = DataFrame(e1=gene_list, m1=clust[Q1][Q2])
+                cnctdf = innerjoin(cnctdf, buf, on=:e1)
+                rename!(buf, [:e2,:m2])
+                cnctdf = innerjoin(cnctdf, buf, on=:e2)
+            ##### preliminaries #####
+
+            ##### Graph Generation #####
+                # undirected graph
+                nw = SimpleGraph(gene_num)
+                for i in 1:nrow(cnctdf)
+                    add_edge!(nw, cnctdf.i1[i], cnctdf.i2[i])
+                end
+                # weighted degree by edge value
+                score = vec(sum(abs.(Matrix(df[Q1, Q1][Q2, Q2])), dims=2))
+            ##### Graph Generation #####
+
+            return nw, pos[Q1, :][Q2, :], cnctdf, clust[Q1][Q2], score
+        end
+        export SetNetwork
+        """
+        # arguments
+        - fn: figure save name
+        - nw: network graph (one of return value of SetNetwork())
+        - pos: node position (one of return value of SetNetwork())
+        - cnctdf: converted correlation matrix (one of return value of SetNetwork())
+        - clust: cluster number of each gene in network (one of return value of SetNetwork())
+        - k: number of clusters
+        - node_scores: weight of node
+        - node_labels: label of node
+        - node_scaler: multiple for node diameter adjustment; Default: 100
+        - edge_mode: mode of edges to be drawn
+          - :ALL -> All edges are drawn (Default)
+          - :N -> Only draw edges with negative values
+          - :P -> Only draw edges with positive values
+        - edge_threshold: Threshold value of edges to be drawn; Default: 0.0
+        - edge_scaler: multiple for edge thickness adjustment; Default: 5
+        - x_size, y_size: Size of the drawing area; Default: 50, 50
+        """
+        function DrawNetwork(fn::String, nw::SimpleGraph, pos::Matrix, cnctdf::DataFrame, clust::Vector{Int64}, k::Int64; node_scores::Vector{}=[], node_labels::Vector{}=[], node_color::Vector=[], node_scaler::Int64=100, edge_mode::Symbol=:ALL, edge_threshold::Float64=0.0, edge_scaler::Int64=5, x_size::Int64=50, y_size::Int64=50)
+            gene_num = nv(nw)
+        
+            # node設計
+            if length(node_scores) == 0
+                node_scores = repeat([1], gene_num)
+            end
+            node_sizes = node_scores .* node_scaler
+            if length(node_color) == 0
+                clust_num = length(unique(vcat(cnctdf.m1, cnctdf.m2)))
+                color_list = range(LCHuv(65,100,15), stop=LCHuv(65,100,375), length=k+1)
+
+                node_color = [color_list[i] for i in clust]
+            end
+            if length(node_labels) == 0
+                node_labels = repeat([""], gene_num)
+            end
+            
+            # edge設計
+            edge_colors = RGBA.(1.0, 0.3, 0.0, cnctdf.cor)
+            edge_colors[cnctdf.cor .< 0.0] = RGBA.(0.0, 0.35, 1.0, abs.(cnctdf.cor[cnctdf.cor .< 0.0]))
+            Q = (abs.(cnctdf.cor) .< edge_threshold)
+            if edge_mode == :P
+                Q = (cnctdf.cor .< 1*edge_threshold)
+            elseif edge_mode == :N
+                Q = (cnctdf.cor .> -1*edge_threshold)
+            end
+            if sum(Q) == nrow(cnctdf)
+                println("NoEdge")
+                return nothing
+            else
+                edge_colors[Q] .= RGBA(0.0, 0.0, 0.0, 0.0)
+            end
+            edge_sizes = edge_scaler .* abs.(cnctdf.cor)
+
+            fig = gplot(
+                        nw, pos[:, 1] .+ minimum(pos[:, 1]), pos[:, 2] .+ minimum(pos[:, 2]),
+                        nodesize=node_sizes, nodefillc=node_color, nodelabel=node_labels,
+                        edgestrokec=edge_colors, edgelinewidth=edge_sizes
+                    )
+            Compose.draw(PNG(fn, x_size*cm, y_size*cm), fig)
+
+            return nothing
+        end
+        export DrawNetwork
+    ##### draw network #####
+
+    ##### Correlation of Phenomenon and Modules #####
+>>>>>>> upstream/main
         """
         # arguments
         - df1::DataFrame: dataframe of gene expression
         - df2::DataFrame: dataframe of Phenomenon
         - clust::Vector{Int64}: cluster number of each gene (one of return value of SpectralClustering())
         - fn::String: fig save name
-        - cor_mode::Symbol: mode of caluclation of correlation coefficient
-          - :ALL -> All three types are drawn (default)
-          - :A_AVG -> all gene average
-          - :P_AVG -> positive correlation gene average
-          - :N_AVG -> negative correlation gene average
+        - method::Symbol: method of caluclation of correlation coefficient
+          - :pearson (default)
+          - :spearman
+        - padj_method::Symbol: method of p-value adjustment
+          - :BH -> Benjamini-Hochberg method is used. (default)
+          - :BY -> Benjamini-Yekutieli method is used.
+        - thres_adjp::Float64: threshold of adjusted p-value for statistical significance; Default: 0.05
         """
+<<<<<<< HEAD
         function cor_module_phenomenon(X::AbstractMatrix, P::AbstractMatrix, clust::AbstractVector{<:Integer}; cor_mode::Symbol=:ALL)
             @assert size(X,2) == size(P,2) "samples must match"
 
             kuni = sort(unique(clust))
+=======
+        function CorPhenMod(df1::DataFrame, df2::DataFrame, clust::Vector{Int64}, fn::String; method::Symbol=:pearson, padj_method::Symbol=:BH, thres_adjp::Float64=0.05)
+            kuni =  sort(unique(clust))
+>>>>>>> upstream/main
             knum = length(kuni)
 
-            CorList = []
-            for i in 1:ncol(df2)
-                push!(CorList, [[] for i=1:knum])
-            end
+            # 相関とp値計算
+            CorList = [[Float64[] for _ in 1:knum] for _ in 1:ncol(df2)]
+            PvalList = [[Float64[] for _ in 1:knum] for _ in 1:ncol(df2)]
             for k in 1:knum
+                buf = df1[clust .== kuni[k], :]
                 for i in 1:ncol(df2)
-                    buf = df1[clust .== kuni[k], :]
-		            Result_each = zeros(nrow(buf))
+                    y = df2[:,i]
+		            r_each = zeros(nrow(buf))
+                    p_each = zeros(nrow(buf))
                     for j in 1:nrow(buf)
-                        Result_each[j] = cor(Array(buf[j,:]), df2[:,i])
+                        x = Array(buf[j,:])
+                        if method == :spearman
+                            xr = StatsBase.tiedrank(x); yr = StatsBase.tiedrank(y)
+                            r_each[j] = cor(xr, yr)
+                            p_each[j] = pvalue(CorrelationTest(xr, yr))
+                        else
+                            r_each[j] = cor(x, y)
+                            p_each[j] = pvalue(CorrelationTest(x, y))
+                        end
                     end
-		            CorList[i][k] = Result_each
+		            CorList[i][k] = r_each
+                    PvalList[i][k] = p_each
                 end
             end
 
+            # Stouffer法でp値統合
+            norm = Normal()
+            combP = zeros(knum, ncol(df2))
+            combZ = zeros(knum, ncol(df2))
+            for (kk, k) in enumerate(1:knum)
+                for i in 1:ncol(df2)
+                    rvec = CorList[i][k]
+                    pvec = PvalList[i][k]
+                    z = similar(pvec)
+                    @inbounds for j in eachindex(pvec)
+                        pj = clamp(pvec[j], 1e-16, 1.0-1e-16)
+                        z[j] = quantile(norm, 1 - pj/2) * sign(rvec[j])
+                    end
+                    combZ[kk, i] = sum(z) / sqrt(length(z))
+                    combP[kk, i] = 2*(1 - cdf(norm, abs(combZ[kk, i])))
+                end
+            end
+            # 統合pの多重比較補正
+            all_comb_p = vec(combP)
+            mt = padj_method == :BH ? BenjaminiHochberg() :
+                    padj_method == :BY ? BenjaminiYekutieli() :
+                    error("Please specify either :BH or :BY for padj_method.")
+            adjp = MultipleTesting.adjust(PValues(all_comb_p), mt)
+            combAdjP = reshape(collect(adjp), size(combP))
+
+            # 描画
             x = collect(1:ncol(df2))
             y = collect(knum:-1:1)
+<<<<<<< HEAD
 
         end
     ##### Correlation of Modules and Phenomenon #####
 end
+=======
+            f = Figure(size=(ncol(df2)*1000+500, knum*60+50), fontsize=40, figure_padding=(30,50,30,10))
+            ax = []
+            for i in 1:length(CorList)
+                push!(ax, Axis(f[1, i], xgridvisible=false, ygridvisible=false, xticksvisible=false, yticksvisible=false, xticks=collect(-1.0:0.5:1.0), limits=(-1,1,1,nothing)))
+                if (i==1)
+                    ax[1].yticks = (y,[mod(k, 5) == 0 ? "module "*string(k) : "" for k in kuni])
+                else
+                    ax[i].yticklabelsvisible = false
+                    linkyaxes!(ax[1], ax[i])
+                end
+                hidespines!(ax[i])
+                ax[i].title = names(df2)[i]
+                ax[i].titlesize = 80
+                for k in 1:length(CorList[1])
+                    density!(ax[i], convert.(Float64,CorList[i][k]), offset=(knum-k+1), color=:x, colormap=(:bwr,0.4), colorrange=(-1.0,1.0), strokewidth=1, strokecolor=:black)
+                end
+                for k in 1:length(CorList[1])
+                    col = combAdjP[k,i] < thres_adjp ? (:red) : (:black)
+                    text!(ax[i], 1.0, knum-k+1.5, text=@sprintf("adjp=%.3g",combAdjP[k,i]), align=(:right, :center), color=col)
+                end
+            end
+            colgap!(f.layout, 100)
+            save(fn, f)
+        end
+        export CorPhenMod
+    ##### Correlation of Phenomenon and Modules #####
+end
+>>>>>>> upstream/main
