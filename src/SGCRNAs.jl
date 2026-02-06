@@ -236,10 +236,40 @@ module SGCRNAs
         end
     ##### SpectralClustering #####
 
+    ##### draw network #####
+        """
+        # arguments
+        - df::DataFrame: dataframe of correlation matrix (return value of CGM())
+        - clust::Vector{Int64}: cluster number of each gene (one of return value of SpectralClustering())
+        - pos::Matrix: gene position for drawing network (one of return value of SpectralClustering())
+        - il::Vector: module number list which you want to draw
+        # returns
+        - nw: undirected graph
+        - pos: node position
+        - cnctdf: converted correlation matrix
+        - clust: cluster number of each gene in network
+        - score: node scores
+        """    
+        function SetNetwork(df::DataFrame, clust::Vector{Int64}, pos::Matrix; il::Vector=[])
+            ##### preliminaries #####
+                # All clusters you want to draw if none are specified.
+                if length(il) == 0
+                    il = sort(unique(clust))
+                end
+                # Extract genes present in the cluster you want to draw
+                Q1 = (clust .== il[1])
+                if length(il) > 1
+                    for i in 2:length(il)
+                        Q1 .|= (clust .== il[i])
+                    end
+                end
+                cnctdf = deepcopy(Matrix(df[Q1, Q1]))
+                gene_list = names(df)[Q1]
+                Q2 = (map(sum, eachrow(cnctdf)) .!= 0.0)
+                cnctdf = cnctdf[Q2, Q2]
+                gene_list = gene_list[Q2]
+                gene_num = length(gene_list)
 
-<<<<<<< HEAD
-    ##### Correlation of Modules and Phenomenon #####
-=======
                 # Convert to upper triangular matrix
                 triu!(cnctdf)
                 cnctdf = DataFrame(hcat(gene_list,cnctdf), vcat(["Symbol"],gene_list))
@@ -346,7 +376,6 @@ module SGCRNAs
     ##### draw network #####
 
     ##### Correlation of Phenomenon and Modules #####
->>>>>>> upstream/main
         """
         # arguments
         - df1::DataFrame: dataframe of gene expression
@@ -361,15 +390,10 @@ module SGCRNAs
           - :BY -> Benjamini-Yekutieli method is used.
         - thres_adjp::Float64: threshold of adjusted p-value for statistical significance; Default: 0.05
         """
-<<<<<<< HEAD
         function cor_module_phenomenon(X::AbstractMatrix, P::AbstractMatrix, clust::AbstractVector{<:Integer}; cor_mode::Symbol=:ALL)
             @assert size(X,2) == size(P,2) "samples must match"
 
             kuni = sort(unique(clust))
-=======
-        function CorPhenMod(df1::DataFrame, df2::DataFrame, clust::Vector{Int64}, fn::String; method::Symbol=:pearson, padj_method::Symbol=:BH, thres_adjp::Float64=0.05)
-            kuni =  sort(unique(clust))
->>>>>>> upstream/main
             knum = length(kuni)
 
             # 相関とp値計算
@@ -425,37 +449,7 @@ module SGCRNAs
             # 描画
             x = collect(1:ncol(df2))
             y = collect(knum:-1:1)
-<<<<<<< HEAD
 
         end
     ##### Correlation of Modules and Phenomenon #####
 end
-=======
-            f = Figure(size=(ncol(df2)*1000+500, knum*60+50), fontsize=40, figure_padding=(30,50,30,10))
-            ax = []
-            for i in 1:length(CorList)
-                push!(ax, Axis(f[1, i], xgridvisible=false, ygridvisible=false, xticksvisible=false, yticksvisible=false, xticks=collect(-1.0:0.5:1.0), limits=(-1,1,1,nothing)))
-                if (i==1)
-                    ax[1].yticks = (y,[mod(k, 5) == 0 ? "module "*string(k) : "" for k in kuni])
-                else
-                    ax[i].yticklabelsvisible = false
-                    linkyaxes!(ax[1], ax[i])
-                end
-                hidespines!(ax[i])
-                ax[i].title = names(df2)[i]
-                ax[i].titlesize = 80
-                for k in 1:length(CorList[1])
-                    density!(ax[i], convert.(Float64,CorList[i][k]), offset=(knum-k+1), color=:x, colormap=(:bwr,0.4), colorrange=(-1.0,1.0), strokewidth=1, strokecolor=:black)
-                end
-                for k in 1:length(CorList[1])
-                    col = combAdjP[k,i] < thres_adjp ? (:red) : (:black)
-                    text!(ax[i], 1.0, knum-k+1.5, text=@sprintf("adjp=%.3g",combAdjP[k,i]), align=(:right, :center), color=col)
-                end
-            end
-            colgap!(f.layout, 100)
-            save(fn, f)
-        end
-        export CorPhenMod
-    ##### Correlation of Phenomenon and Modules #####
-end
->>>>>>> upstream/main
